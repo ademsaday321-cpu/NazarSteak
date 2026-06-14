@@ -54,7 +54,7 @@
     #loader.out { opacity: 0; visibility: hidden; }
 
     .ld-logo {
-      width: 80px; height: 80px;
+      width: 120px; height: 120px;
       object-fit: contain;
       filter: drop-shadow(0 0 22px rgba(200,130,42,.5));
       animation: ld-pulse 2s ease-in-out infinite;
@@ -146,7 +146,7 @@
     .hero-tagline {
       font-family: 'Cormorant Garamond', serif;
       font-style: italic;
-      font-size: .95rem;
+      font-size: 1.25rem;
       color: var(--amber-lt);
       letter-spacing: .08em;
       opacity: .9;
@@ -330,9 +330,9 @@
 
     /* Price */
     .item-price {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.15rem;
-      font-weight: 700;
+      font-family: 'Inter', sans-serif;
+      font-size: 1rem;
+      font-weight: 500;
       color: var(--amber-lt);
       white-space: nowrap;
       flex-shrink: 0;
@@ -777,7 +777,7 @@ function mkRow(item, cat, firstPriceRaw) {
   const multi = item.variants.length > 1;
   let priceCell;
   if (firstPriceRaw) {
-    const label = multi ? fmt(firstPriceRaw) + '<span style="font-size:.65rem;opacity:.6;margin-left:2px">den</span>' : fmt(firstPriceRaw);
+    const label = fmt(firstPriceRaw);
     priceCell = `<div class="item-price">${label}</div>`;
   } else {
     priceCell = `<div class="item-price-ph"></div>`;
