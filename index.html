@@ -739,7 +739,7 @@ function build(priceMap) {
       const firstPrice = prices[item.variants[0].key] || null;
       const row = mkRow(item, cat, firstPrice);
       sec.appendChild(row);
-      allRows.push({ el: row, cat, nl: item.name.toLowerCase() });
+      allRows.push({ el: row, cat, nl: item.name.toLowerCase(), vl: item.variants.map(v => v.label.toLowerCase()).join(' ') });
     });
 
     main.appendChild(sec);
@@ -812,7 +812,7 @@ document.getElementById('search').addEventListener('input', function () {
   document.querySelectorAll('.cat-section').forEach(s => s.classList.add('visible'));
   let found = false;
   allRows.forEach(r => {
-    const hit = r.nl.includes(q) || r.sl.includes(q) || r.cat.toLowerCase().includes(q);
+    const hit = r.nl.includes(q) || r.vl.includes(q) || r.cat.toLowerCase().includes(q);
     r.el.style.display = hit ? '' : 'none';
     if (hit) found = true;
   });
