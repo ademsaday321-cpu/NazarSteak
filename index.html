@@ -102,7 +102,6 @@
       object-position: center 40%;
       filter: brightness(.55) saturate(.85);
     }
-    /* warm amber overlay — matches the restaurant lights */
     .hero-overlay {
       position: absolute; inset: 0;
       background: linear-gradient(
@@ -112,7 +111,6 @@
         rgba(10,7,3,.72) 100%
       );
     }
-    /* amber glow strip at bottom */
     .hero-glow {
       position: absolute;
       bottom: 0; left: 0; right: 0;
@@ -247,7 +245,6 @@
     .cat-section { display: none; }
     .cat-section.visible { display: block; }
 
-    /* Section title */
     .sec-title {
       display: flex;
       align-items: center;
@@ -283,7 +280,6 @@
     .item-row:hover  { background: rgba(200,130,42,.05); }
     .item-row:active { background: rgba(200,130,42,.09); }
 
-    /* Thumbnail */
     .item-thumb {
       width: 68px;
       height: 68px;
@@ -303,7 +299,6 @@
       object-fit: cover;
       display: block;
     }
-    /* placeholder pattern when no image */
     .item-thumb-ph {
       width: 28px;
       height: 28px;
@@ -313,7 +308,6 @@
       stroke-width: 1.5;
     }
 
-    /* Text block */
     .item-info { flex: 1; min-width: 0; }
     .item-name {
       font-size: .93rem;
@@ -328,7 +322,6 @@
       margin-top: 3px;
     }
 
-    /* Price */
     .item-price {
       font-family: 'Inter', sans-serif;
       font-size: 1rem;
@@ -348,7 +341,6 @@
       0%,100%{opacity:.3} 50%{opacity:.75}
     }
 
-    /* Chevron */
     .item-chevron {
       width: 13px; height: 13px;
       flex-shrink: 0;
@@ -361,7 +353,43 @@
     }
     .item-row:hover .item-chevron { stroke: var(--amber); }
 
-    /* No results */
+    /* ═══════════════════════════════
+       SKELETON LOADER ROWS
+    ═══════════════════════════════ */
+    .item-row-skeleton {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .skel-thumb {
+      width: 68px; height: 68px;
+      border-radius: 8px;
+      background: var(--surface2);
+      animation: shimmer 1.4s infinite;
+      flex-shrink: 0;
+    }
+    .skel-lines {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .skel-line {
+      height: 13px;
+      border-radius: 4px;
+      background: var(--surface2);
+      animation: shimmer 1.4s infinite;
+    }
+    .skel-line.short { width: 55%; }
+    .skel-price {
+      width: 52px; height: 16px;
+      border-radius: 4px;
+      background: var(--surface2);
+      animation: shimmer 1.4s infinite;
+    }
+
     #no-results {
       display: none;
       padding: 72px 20px;
@@ -407,7 +435,6 @@
     #modal::-webkit-scrollbar { display: none; }
     #overlay.open #modal { transform: scale(1) translateY(0); }
 
-    /* Modal image */
     .modal-img-wrap {
       position: relative;
       width: 100%;
@@ -467,8 +494,14 @@
       color: var(--text);
       line-height: 1.15;
     }
+    .modal-desc {
+      font-size: .82rem;
+      font-weight: 300;
+      color: var(--text-2);
+      line-height: 1.6;
+      margin-top: 8px;
+    }
 
-    /* Porsiyon / Kg toggle */
     .modal-toggle {
       display: flex;
       gap: 8px;
@@ -540,6 +573,7 @@
 
     @media (min-width: 760px) {
       .item-thumb { width: 76px; height: 76px; }
+      .skel-thumb { width: 76px; height: 76px; }
     }
   </style>
 </head>
@@ -595,6 +629,7 @@
     <div class="modal-body">
       <div class="modal-cat-label" id="modal-cat"></div>
       <div class="modal-name"      id="modal-name"></div>
+      <div class="modal-desc"      id="modal-desc"></div>
       <div class="modal-toggle"    id="modal-toggle"></div>
       <div class="modal-rule"></div>
       <div class="modal-price-row">
@@ -608,104 +643,32 @@
 <!-- ══ FOOTER ══ -->
 <footer>Nazar Steak &amp; Kavurma &nbsp;·&nbsp; Ereğli &nbsp;·&nbsp; Fiyatlara KDV dahildir</footer>
 
-<script>
-/* ────────────────────────────────────────
-   MENU DATA
-   Her item: name, variants[] = [{label, key}]
-   Porsiyon/Kg var ise variants 2 elemanlı,
-   yalnızca biri varsa 1 elemanlı — toggle gizlenir.
-──────────────────────────────────────── */
-// Key değerleri CSV'deki "Ürün Adı" sütunuyla birebir eşleşiyor.
-// Porsiyon/Kg için her ürünün kendi CSV satır adı kullanılır.
-const MENU = [
-  { cat: "Kuzu Izgara", items: [
-    { name: "Kuzu Pirzola",             variants: [{label:"Porsiyon", key:"Kuzu Pirzola"}, {label:"Kilogram", key:"Kuzu Pirzola Kg"}] },
-    { name: "Kuzu Çöp Şiş",            variants: [{label:"Porsiyon", key:"Kuzu Çöp Şiş"}, {label:"Kilogram", key:"Kuzu Çöp Şiş Kg"}] },
-    { name: "Kuzu Külbastı",            variants: [{label:"Porsiyon", key:"Kuzu Külbastı"}, {label:"Kilogram", key:"Kuzu Külbastı Kg"}] },
-    { name: "Kuzu Kaburga Cağ Şiş",    variants: [{label:"Porsiyon", key:"Kuzu Kaburga Cağ Şiş"}, {label:"Kilogram", key:"Kuzu Kaburga Cağ Şiş Kg"}] },
-    { name: "Kuzu Kemikli Fırın Kebap", variants: [{label:"Porsiyon", key:"Kuzu Kemikli Fırın Kebap"}, {label:"Kilogram", key:"Kuzu Kemikli Fırın Kebap"}] },
-    { name: "Kuzu Küşleme",             variants: [{label:"Porsiyon", key:"Kuzu Küşleme"}, {label:"Kilogram", key:"Kuzu Küşleme Kg"}] },
-    { name: "Karışık Izgara",           variants: [{label:"Porsiyon", key:"Karışık Izgara"}, {label:"Kilogram", key:"Karışık Izgara Kg"}] },
-  ]},
-  { cat: "Dana Izgara", items: [
-    { name: "Dana Antrikot", variants: [{label:"Porsiyon", key:"Dana Antrikot"}, {label:"Kilogram", key:"Dana Antrikot Kg"}] },
-    { name: "Dana Bonfile",  variants: [{label:"Porsiyon", key:"Dana Bonfile"},  {label:"Kilogram", key:"Dana Bonfile Kg"}] },
-  ]},
-  { cat: "Izgaralar", items: [
-    { name: "Kasap Köfte",      variants: [{label:"Porsiyon", key:"Kasap Köfte Porsiyon"}, {label:"Kilogram", key:"Kasap Köfte Kg."}] },
-    { name: "Adana",            variants: [{label:"Porsiyon", key:"Adana Porsiyon"}] },
-    { name: "Özel Nazar Sucuk", variants: [{label:"Porsiyon", key:"Özel Nazar Sucuk"}] },
-    { name: "Tavuk Kanat",      variants: [{label:"Porsiyon", key:"Tavuk Kanat Porsiyon"}] },
-  ]},
-  { cat: "Kavurmalar", items: [
-    { name: "Ekmek Arası Jülyen Kavurma", variants: [{label:"Porsiyon", key:"Ekmek Arası Jülyen Kavurma"}] },
-    { name: "Kuşbaşı Kavurma",            variants: [{label:"Porsiyon", key:"Kuşbaşı Kavurma Tavo"}] },
-    { name: "Adana Dürüm",                variants: [{label:"Porsiyon", key:"Adana Dürüm"}] },
-    { name: "İçli Köfte",                 variants: [{label:"Porsiyon", key:"İçli Köfte"}] },
-    { name: "Ekmek Arası Köfte",          variants: [{label:"Porsiyon", key:"Ekmek Arası Köfte"}] },
-  ]},
-  { cat: "Başlangıç", items: [
-    { name: "Mercimek Çorbası", variants: [{label:"Porsiyon", key:"Mercimek Çorbası"}] },
-    { name: "Tandır Çorbası",   variants: [{label:"İlik Suyundan", key:"Tandır Çorbası (İlik Suyundan)"}] },
-  ]},
-  { cat: "Salatalar", items: [
-    { name: "Çoban Salata",     variants: [{label:"Porsiyon", key:"Çoban Salata"}] },
-    { name: "Gavurdağı Salata", variants: [{label:"Porsiyon", key:"Gavurdağı Salata"}] },
-    { name: "Mevsim Salata",    variants: [{label:"Porsiyon", key:"Mevsim Salata"}] },
-    { name: "Koyun Yoğurdu",    variants: [{label:"Porsiyon", key:"Koyun Yoğurdu"}] },
-    { name: "Süzme Yoğurt",     variants: [{label:"Porsiyon", key:"Süzme Yoğurt"}] },
-  ]},
-  { cat: "Tatlılar", items: [
-    { name: "Sac Arası",      variants: [{label:"Porsiyon", key:"Sac Arası"}] },
-    { name: "Fırın Sütlaç",   variants: [{label:"Porsiyon", key:"Fırın Sütlaç"}] },
-    { name: "Ekmek Kadayıfı", variants: [{label:"Porsiyon", key:"Ekmek Kadayıfı"}] },
-  ]},
-  { cat: "İçecekler", items: [
-    { name: "Su",           variants: [{label:"Porsiyon", key:"Su"}] },
-    { name: "Kola",         variants: [{label:"Porsiyon", key:"Kola"}] },
-    { name: "Fanta",        variants: [{label:"Porsiyon", key:"Fanta"}] },
-    { name: "Gazoz",        variants: [{label:"Porsiyon", key:"Gazoz"}] },
-    { name: "Ice Tea",      variants: [{label:"Porsiyon", key:"Ice Tea"}] },
-    { name: "Meyve Suyu",   variants: [{label:"Porsiyon", key:"Meyve Suyu"}] },
-    { name: "Sade Soda",    variants: [{label:"Porsiyon", key:"Sade Soda"}] },
-    { name: "Meyveli Soda", variants: [{label:"Porsiyon", key:"Meyveli Soda"}] },
-    { name: "Yayık Ayran",  variants: [{label:"Porsiyon", key:"Yayık Ayran"}] },
-    { name: "Kapalı Ayran", variants: [{label:"Porsiyon", key:"Kapalı Ayran"}] },
-    { name: "Şalgam",       variants: [{label:"Porsiyon", key:"Şalgam"}] },
-  ]},
-];
-
-const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQyc8rD4I9eilR3EfQQqw3_Sp26VhX-e8iQNP-czKCmEs1_pxP-kqbdyFH2WYW7P1CeB7IKSNbRynXp/pub?output=csv";
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 /* ────────────────────────────────────────
-   CSV PARSER
+   FIREBASE CONFIG
 ──────────────────────────────────────── */
-function parseCSV(raw) {
-  const map = {};
-  const lines = raw.trim().split(/\r?\n/);
-  // Header: Ürün Adı, Kategori, Fiyatı  → cols[0]=name, cols[2]=price
-  for (let i = 1; i < lines.length; i++) {
-    const cols = splitRow(lines[i]);
-    const k = (cols[0] || '').trim();
-    const v = (cols[2] || '').trim();
-    if (k) map[k] = v;
-  }
-  return map;
-}
-function splitRow(line) {
-  const out = []; let cur = '', q = false;
-  for (let i = 0; i < line.length; i++) {
-    const c = line[i];
-    if (c === '"') { if (q && line[i+1]==='"'){cur+='"';i++;}else q=!q; }
-    else if (c === ',' && !q) { out.push(cur); cur=''; }
-    else cur += c;
-  }
-  out.push(cur); return out;
-}
-function fmt(raw) {
-  if (!raw) return '—';
-  const n = parseFloat(raw.replace(/[^\d,\.]/g,'').replace(',','.'));
-  return isNaN(n) ? raw : n.toLocaleString('tr-TR',{maximumFractionDigits:0}) + ' ₺';
+const firebaseConfig = {
+  apiKey: "AIzaSyDx17iwmc9Wi4Zkx1CkJoQAEbeLA312h7c",
+  authDomain: "nazar-et-qr-menu.firebaseapp.com",
+  projectId: "nazar-et-qr-menu",
+  storageBucket: "nazar-et-qr-menu.firebasestorage.app",
+  messagingSenderId: "66531790628",
+  appId: "1:66531790628:web:53b3c620224a0666c0edb1"
+};
+
+const CACHE_KEY = 'nazarMenu_v1';
+const CACHE_TTL = 5 * 60 * 1000; // 5 dakika
+
+/* ────────────────────────────────────────
+   PRICE FORMATTER
+──────────────────────────────────────── */
+function fmt(price) {
+  if (!price && price !== 0) return '—';
+  const n = Number(price);
+  return isNaN(n) ? '—' : n.toLocaleString('tr-TR', { maximumFractionDigits: 0 }) + ' ₺';
 }
 
 /* ────────────────────────────────────────
@@ -713,33 +676,40 @@ function fmt(raw) {
 ──────────────────────────────────────── */
 const allRows = [];
 let activeFilter = 'all';
-let prices = {};
 
-function build(priceMap) {
-  prices = priceMap;
+const thumbPh = `<svg class="item-thumb-ph" viewBox="0 0 64 64">
+  <ellipse cx="32" cy="36" rx="20" ry="12"/>
+  <path d="M14 30 C18 20 46 20 50 30"/>
+</svg>`;
+
+function build(categories) {
   const main  = document.getElementById('main');
   const strip = document.getElementById('cats-scroll');
 
   strip.appendChild(mkBtn('Tümü', 'all', true));
 
-  MENU.forEach(({ cat, items }) => {
-    strip.appendChild(mkBtn(cat, cat, false));
+  categories.forEach(({ id, name, items }) => {
+    strip.appendChild(mkBtn(name, id, false));
 
     const sec = document.createElement('section');
     sec.className = 'cat-section';
-    sec.dataset.cat = cat;
+    sec.dataset.cat = id;
 
     const hd = document.createElement('div');
     hd.className = 'sec-title';
-    hd.innerHTML = `<h2>${cat}</h2><div class="sec-title-line"></div>`;
+    hd.innerHTML = `<h2>${name}</h2><div class="sec-title-line"></div>`;
     sec.appendChild(hd);
 
-    items.forEach(item => {
-      // List always shows Porsiyon (first variant) price
-      const firstPrice = prices[item.variants[0].key] || null;
-      const row = mkRow(item, cat, firstPrice);
+    (items || []).forEach(item => {
+      const row = mkRow(item, name);
       sec.appendChild(row);
-      allRows.push({ el: row, cat, nl: item.name.toLowerCase(), vl: item.variants.map(v => v.label.toLowerCase()).join(' ') });
+      allRows.push({
+        el: row,
+        cat: id,
+        catName: name,
+        nl: item.name.toLowerCase(),
+        vl: (item.variants || []).map(v => v.label.toLowerCase()).join(' ')
+      });
     });
 
     main.appendChild(sec);
@@ -764,35 +734,44 @@ function mkBtn(label, key, active) {
   return b;
 }
 
-function mkRow(item, cat, firstPriceRaw) {
+function mkRow(item, catName) {
   const row = document.createElement('div');
   row.className = 'item-row';
 
-  const thumbPh = `<svg class="item-thumb-ph" viewBox="0 0 64 64">
-    <ellipse cx="32" cy="36" rx="20" ry="12"/>
-    <path d="M14 30 C18 20 46 20 50 30"/>
-  </svg>`;
-
-  // Show starting price: "850 ₺" or "850 ₺'den" if multiple variants
-  const multi = item.variants.length > 1;
+  const firstVariant = (item.variants || [])[0];
   let priceCell;
-  if (firstPriceRaw) {
-    const label = fmt(firstPriceRaw);
-    priceCell = `<div class="item-price">${label}</div>`;
+  if (firstVariant && (firstVariant.price || firstVariant.price === 0)) {
+    priceCell = `<div class="item-price">${fmt(firstVariant.price)}</div>`;
   } else {
     priceCell = `<div class="item-price-ph"></div>`;
   }
 
+  let thumbHtml;
+  if (item.imageUrl) {
+    thumbHtml = `<div class="item-thumb"><img src="${item.imageUrl}" alt="${item.name}" loading="lazy" /></div>`;
+  } else {
+    thumbHtml = `<div class="item-thumb">${thumbPh}</div>`;
+  }
+
   row.innerHTML = `
-    <div class="item-thumb">${thumbPh}</div>
+    ${thumbHtml}
     <div class="item-info">
       <div class="item-name">${item.name}</div>
+      ${item.description ? `<div class="item-sub">${item.description}</div>` : ''}
     </div>
     ${priceCell}
     <svg class="item-chevron" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>`;
 
-  row.addEventListener('click', () => openModal(item, cat));
+  row.addEventListener('click', () => openModal(item, catName));
   return row;
+}
+
+function rebuildMenu(fresh) {
+  document.getElementById('main').innerHTML = '';
+  document.getElementById('cats-scroll').innerHTML = '';
+  allRows.length = 0;
+  activeFilter = 'all';
+  build(fresh);
 }
 
 /* ────────────────────────────────────────
@@ -812,7 +791,7 @@ document.getElementById('search').addEventListener('input', function () {
   document.querySelectorAll('.cat-section').forEach(s => s.classList.add('visible'));
   let found = false;
   allRows.forEach(r => {
-    const hit = r.nl.includes(q) || r.vl.includes(q) || r.cat.toLowerCase().includes(q);
+    const hit = r.nl.includes(q) || r.vl.includes(q) || r.catName.toLowerCase().includes(q);
     r.el.style.display = hit ? '' : 'none';
     if (hit) found = true;
   });
@@ -832,52 +811,64 @@ function clearSearch() {
 /* ────────────────────────────────────────
    MODAL
 ──────────────────────────────────────── */
-function openModal(item, cat) {
-  document.getElementById('modal-cat').textContent  = cat;
+function openModal(item, catName) {
+  document.getElementById('modal-cat').textContent  = catName;
   document.getElementById('modal-name').textContent = item.name;
 
-  // Build toggle buttons
-  const toggleWrap = document.getElementById('modal-toggle');
-  toggleWrap.innerHTML = '';
+  // Description
+  const descEl = document.getElementById('modal-desc');
+  descEl.textContent = item.description || '';
+  descEl.style.display = item.description ? '' : 'none';
 
-  const priceEl = document.getElementById('modal-price');
-
-  function setPrice(variantKey) {
-    const raw = prices[variantKey] || null;
-    priceEl.textContent = raw ? fmt(raw) : '—';
+  // Image
+  const wrap = document.getElementById('modal-img-wrap');
+  wrap.innerHTML = '';
+  if (item.imageUrl) {
+    const img = document.createElement('img');
+    img.className = 'modal-photo';
+    img.src = item.imageUrl;
+    img.alt = item.name;
+    wrap.appendChild(img);
+  } else {
+    wrap.innerHTML = `<svg class="modal-ph-icon" viewBox="0 0 64 64">
+      <ellipse cx="32" cy="34" rx="22" ry="14"/>
+      <path d="M14 28 C18 18 46 18 50 28"/>
+      <path d="M22 22 C24 16 40 16 42 22"/>
+    </svg>`;
   }
 
-  if (item.variants.length > 1) {
+  // Toggle buttons
+  const toggleWrap = document.getElementById('modal-toggle');
+  toggleWrap.innerHTML = '';
+  const priceEl = document.getElementById('modal-price');
+
+  function setPrice(price) {
+    priceEl.textContent = fmt(price);
+  }
+
+  const variants = item.variants || [];
+  if (variants.length > 1) {
     toggleWrap.style.display = 'flex';
-    item.variants.forEach((v, i) => {
+    variants.forEach((v, i) => {
       const btn = document.createElement('button');
       btn.className = 'toggle-btn' + (i === 0 ? ' active' : '');
       btn.textContent = v.label;
       btn.addEventListener('click', () => {
         toggleWrap.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        // Animate price swap
         priceEl.classList.add('fade');
         setTimeout(() => {
-          setPrice(v.key);
+          setPrice(v.price);
           priceEl.classList.remove('fade');
         }, 130);
       });
       toggleWrap.appendChild(btn);
     });
-    // Set initial price to first variant
-    setPrice(item.variants[0].key);
+    setPrice(variants[0].price);
   } else {
     toggleWrap.style.display = 'none';
-    setPrice(item.variants[0].key);
+    setPrice(variants[0] ? variants[0].price : null);
   }
-
-  // Image placeholder reset
-  const wrap = document.getElementById('modal-img-wrap');
-  const oldImg = wrap.querySelector('img.modal-photo');
-  if (oldImg) oldImg.remove();
-  const ph = wrap.querySelector('.modal-ph-icon');
-  if (ph) ph.style.display = 'block';
 
   document.getElementById('overlay').classList.add('open');
   document.body.style.overflow = 'hidden';
@@ -895,22 +886,90 @@ document.getElementById('overlay').addEventListener('click', e => {
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
 /* ────────────────────────────────────────
+   SKELETON
+──────────────────────────────────────── */
+function showSkeletons(count = 6) {
+  const main = document.getElementById('main');
+  for (let i = 0; i < count; i++) {
+    const sk = document.createElement('div');
+    sk.className = 'item-row-skeleton';
+    sk.innerHTML = `
+      <div class="skel-thumb"></div>
+      <div class="skel-lines">
+        <div class="skel-line"></div>
+        <div class="skel-line short"></div>
+      </div>
+      <div class="skel-price"></div>`;
+    main.appendChild(sk);
+  }
+}
+
+function removeSkeletons() {
+  document.querySelectorAll('.item-row-skeleton').forEach(el => el.remove());
+}
+
+/* ────────────────────────────────────────
+   LOADER HIDE
+──────────────────────────────────────── */
+function hideLoader(delay = 400) {
+  setTimeout(() => {
+    const ld = document.getElementById('loader');
+    if (!ld) return;
+    ld.classList.add('out');
+    ld.addEventListener('transitionend', () => ld.remove(), { once: true });
+  }, delay);
+}
+
+/* ────────────────────────────────────────
+   FIRESTORE
+──────────────────────────────────────── */
+async function loadFromFirestore(db) {
+  const snap = await getDocs(collection(db, 'categories'));
+  const cats = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  cats.sort((a, b) => (a.order ?? 99) - (b.order ?? 99));
+  return cats;
+}
+
+/* ────────────────────────────────────────
    INIT
 ──────────────────────────────────────── */
 async function init() {
-  let priceMap = {};
+  const app = initializeApp(firebaseConfig);
+  const db  = getFirestore(app);
+
+  // Cache kontrolü
+  let cached = null;
   try {
-    const r = await fetch(CSV_URL);
-    priceMap = parseCSV(await r.text());
-  } catch(e) { console.warn('CSV yüklenemedi:', e); }
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Date.now() - parsed.ts < CACHE_TTL) cached = parsed.data;
+    }
+  } catch(e) {}
 
-  build(priceMap);
-
-  setTimeout(() => {
-    const ld = document.getElementById('loader');
-    ld.classList.add('out');
-    ld.addEventListener('transitionend', () => ld.remove(), { once: true });
-  }, 2000);
+  if (cached) {
+    build(cached);
+    hideLoader(300);
+    // Arka planda taze veri çek — değişmişse güncelle
+    loadFromFirestore(db).then(fresh => {
+      if (JSON.stringify(fresh) !== JSON.stringify(cached)) {
+        rebuildMenu(fresh);
+      }
+      localStorage.setItem(CACHE_KEY, JSON.stringify({ data: fresh, ts: Date.now() }));
+    }).catch(err => console.warn('Firestore arka plan güncelleme:', err));
+  } else {
+    showSkeletons();
+    try {
+      const cats = await loadFromFirestore(db);
+      localStorage.setItem(CACHE_KEY, JSON.stringify({ data: cats, ts: Date.now() }));
+      removeSkeletons();
+      build(cats);
+    } catch(e) {
+      console.error('Firestore yüklenemedi:', e);
+      removeSkeletons();
+    }
+    hideLoader(400);
+  }
 }
 
 init();
